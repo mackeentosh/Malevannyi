@@ -77,7 +77,7 @@ class DataSet:
 class InputConnect:
     def __init__(self):
         # self.file_name = input("Введите название файла: ")
-        self.file_name = "vacancies_medium.csv"git
+        self.file_name = "vacancies_medium.csv"
         self.profession_name = input("Введите название профессии: ")
         # self.profession_name = "Программист"
 
