@@ -5,7 +5,7 @@ import math
 from openpyxl import Workbook
 from openpyxl.styles import Font, Border, Side
 import openpyxl.utils.cell
-from openpyxl.styles.numbers import FORMAT_PERCENTAGE_00
+
 
 currency_to_rub = {
     "AZN": 35.68,
