@@ -40,6 +40,21 @@ class Vacancy:
 
         Args:
             items (list): Список значений, формируемых с помощью класса DataSet
+
+        >>> type(Vacancy(['Программист', 70000, 500000, 'RUR', 'Москва', '2022-05-31T17:32:31+0300'])).__name__
+        'Vacancy'
+        >>> Vacancy(['Программист', 70000, 500000, 'RUR', 'Москва', '2022-05-31T17:32:31+0300']).name
+        'Программист'
+        >>> Vacancy(['Программист', 70000, 500000, 'RUR', 'Москва', '2022-05-31T17:32:31+0300']).salary_from
+        70000.0
+        >>> Vacancy(['Программист', 70000, 500000, 'RUR', 'Москва', '2022-05-31T17:32:31+0300']).salary_to
+        500000.0
+        >>> Vacancy(['Программист', 70000, 500000, 'RUR', 'Москва', '2022-05-31T17:32:31+0300']).salary_currency
+        'RUR'
+        >>> Vacancy(['Программист', 70000, 500000, 'RUR', 'Москва', '2022-05-31T17:32:31+0300']).area_name
+        'Москва'
+        >>> Vacancy(['Программист', 70000, 500000, 'RUR', 'Москва', '2022-05-31T17:32:31+0300']).published_at
+        '2022-05-31T17:32:31+0300'
         """
         self.name = items[0]
         self.salary_from = float(items[1])
@@ -61,6 +76,13 @@ class DataSet:
 
         Args:
             file_name (str): Имя файла
+
+        >>> type(DataSet("file_name")).__name__
+        'DataSet'
+        >>> DataSet("vacancies.csv").file_name
+        'vacancies.csv'
+        >>> DataSet("vacancies.csv").vacancies
+        []
         """
         self.file_name = file_name
         self.vacancies = []
@@ -112,6 +134,11 @@ class DataSet:
 
         Returns:
             list: Список всех вакансий с названиями их параметров
+
+        >>> DataSet("file_name").csv_filer(['Название', 'Описание', 'Средняя з/п'], [['Программист', 'Middle Frontend', '150000']])
+        [{'Название': 'Программист', 'Описание': 'Middle Frontend', 'Средняя з/п': '150000'}]
+        >>> DataSet("file_name").csv_filer([], [[]])
+        [{}]
         """
         data_vacancies_local = []
         for vacancy in reader:
@@ -131,6 +158,13 @@ class DataSet:
 
         Returns:
             list: Параметры вакансии с удаленными html-тегами
+
+        >>> DataSet("file_name").remove_html_tags(["Программист<p></p>", "<strong>Особенности</strong>"])
+        ['Программист', 'Особенности']
+        >>> DataSet("file_name").remove_html_tags(["Програм<strong>ми</strong >ст", "<h1>Особен</   h1 >ности"])
+        ['Программист', 'Особенности']
+        >>> DataSet("file_name").remove_html_tags(["<    >", "<div><  /div >"])
+        ['', '']
         """
         for title in range(len(vacancy)):
             vacancy[title] = " ".join(re.sub(r"\<[^>]*\>", "", vacancy[title]).split())
@@ -145,9 +179,15 @@ class InputConnect:
         profession_name (str): Название профессии
     """
     def __init__(self):
-        """Инициализирует объект InputConnect"""
-        self.file_name = input("Введите название файла: ")
-        self.profession_name = input("Введите название профессии: ")
+        """Инициализирует объект InputConnect
+
+        >>> type(InputConnect()).__name__
+        'InputConnect'
+        """
+        # self.file_name = input("Введите название файла: ")
+        # self.profession_name = input("Введите название профессии: ")
+        self.file_name = "vacancies_medium.csv"
+        self.profession_name = "Программист"
 
     @staticmethod
     def print_data_dict(self, data: DataSet):
@@ -274,9 +314,18 @@ class InputConnect:
 
         Args:
             vacancy (Vacancy): объект класса Vacancy
+
+        >>> InputConnect().convert_currency(Vacancy(["name", "40000.0", "80000.0", "RUR", "area", "date"]))
+        60000
+        >>> InputConnect().convert_currency(Vacancy(["name", "35000.0", "70000.0", "AZN", "area", "date"]))
+        1873200
+        >>> InputConnect().convert_currency(Vacancy(["name", "1000.0", "3000.0", "USD", "area", "date"]))
+        121320
         """
         rate = currency_to_rub[vacancy.salary_currency]
         return int((vacancy.salary_from * rate + vacancy.salary_to * rate) / 2)
+
+    # Vacancy("name", "salary_from", "salary_to", "currency", "area_name", "published_at")
 
     @staticmethod
     def get_salary_by_city(data: DataSet):
@@ -323,6 +372,23 @@ class Report:
             salary_by_cities (dict): Список городов с самыми высокими зарплатами конкретной профессии
             vacs_by_cities (dict): Список с отношениями количества вакансий по конкретной профессии к общему количеству вакансий по городам
             profession_name (str): Название профессии
+
+        >>> type(Report({2022: 204316}, {2022: 428}, {2022: 103546}, {2022: 21}, {'Казань': 156337, 'Москва': 142291}, {'Москва': 0.1893}, "Программист")).__name__
+        'Report'
+        >>> Report({2022: 204316}, {2022: 428}, {2022: 103546}, {2022: 21}, {'Казань': 156337, 'Москва': 142291}, {'Москва': 0.1893}, "Программист").salary_by_year
+        {2022: 204316}
+        >>> Report({2022: 204316}, {2022: 428}, {2022: 103546}, {2022: 21}, {'Казань': 156337, 'Москва': 142291}, {'Москва': 0.1893}, "Программист").vacs_by_years
+        {2022: 428}
+        >>> Report({2022: 204316}, {2022: 428}, {2022: 103546}, {2022: 21}, {'Казань': 156337, 'Москва': 142291}, {'Москва': 0.1893}, "Программист").vac_salary_by_years
+        {2022: 103546}
+        >>> Report({2022: 204316}, {2022: 428}, {2022: 103546}, {2022: 21}, {'Казань': 156337, 'Москва': 142291}, {'Москва': 0.1893}, "Программист").vac_counts_by_years
+        {2022: 21}
+        >>> Report({2022: 204316}, {2022: 428}, {2022: 103546}, {2022: 21}, {'Казань': 156337, 'Москва': 142291}, {'Москва': 0.1893}, "Программист").salary_by_cities
+        {'Казань': 156337, 'Москва': 142291}
+        >>> Report({2022: 204316}, {2022: 428}, {2022: 103546}, {2022: 21}, {'Казань': 156337, 'Москва': 142291}, {'Москва': 0.1893}, "Программист").vacs_by_cities
+        {'Москва': '18,93%'}
+        >>> Report({2022: 204316}, {2022: 428}, {2022: 103546}, {2022: 21}, {'Казань': 156337, 'Москва': 142291}, {'Москва': 0.1893}, "Программист").profession
+        'Программист'
         """
         self.salary_by_year = salary_by_year
         self.vacs_by_years = vacs_by_years
