@@ -24,7 +24,22 @@ currency_to_rub = {
 
 
 class Vacancy:
+    """Класс, содержащий параметры вакансии
+
+     Attributes:
+         name (str): Название вакансии
+         salary_from (float): Нижняя граница вилки оклада
+         salary_to (float): Верхняя граница вилки оклада
+         salary_currency (str): Валюта оклада
+         area_name (str): Страна
+         published_at (str): Дата публикации
+    """
     def __init__(self, items):
+        """Инициализирует объект Vacancy, выполняет конвертацию границ оклада в float
+
+        Args:
+            items (list): Список значений, формируемых с помощью класса DataSet
+        """
         self.name = items[0]
         self.salary_from = float(items[1])
         self.salary_to = float(items[2])
@@ -34,12 +49,31 @@ class Vacancy:
 
 
 class DataSet:
+    """Класс, подготавливающий данные из csv-файла для передачи в класс Vacancy
+
+    Attributes:
+        file_name (str): Имя файла
+        vacancies (list): Список вакансий
+    """
     def __init__(self, file_name):
+        """Инициализирует объект DataSet
+
+        Args:
+            file_name (str): Имя файла
+        """
         self.file_name = file_name
         self.vacancies = []
 
     @staticmethod
     def get_dataset(file_name):
+        """Формирует данные
+
+        Args:
+            file_name (str): Имя csv-файла
+
+        Returns:
+            list: Список вакансий
+        """
         data = DataSet.csv_reader(file_name)
         data_array = DataSet.csv_filer(data[0], data[1])
         dataset = DataSet(file_name)
@@ -53,6 +87,15 @@ class DataSet:
 
     @staticmethod
     def csv_reader(file_name):
+        """Считывает данные из csv-файла
+
+        Args:
+            file_name (str): Имя csv-файла
+
+        Returns:
+            list: Названия параметров вакансий
+            list: Параметры вакансий
+        """
         file_csv = open(file_name, encoding="utf_8_sig")
         reader_csv = csv.reader(file_csv)
         list_data = [x for x in reader_csv]
@@ -60,6 +103,15 @@ class DataSet:
 
     @staticmethod
     def csv_filer(list_naming, reader):
+        """Формирует список вакансий
+
+        Args:
+            list_naming (list): Названия параметров вакансий
+            reader (list): Параматры вакансий
+
+        Returns:
+            list: Список всех вакансий с названиями их параметров
+        """
         data_vacancies_local = []
         for vacancy in reader:
             data_dictionary = {}
@@ -71,19 +123,47 @@ class DataSet:
 
     @staticmethod
     def remove_html_tags(vacancy):
+        """Удаляет html-теги из параметров вакансии
+
+        Args:
+            vacancy (list): Параметры вакансии
+
+        Returns:
+            list: Параметры вакансии с удаленными html-тегами
+        """
         for title in range(len(vacancy)):
             vacancy[title] = " ".join(re.sub(r"\<[^>]*\>", "", vacancy[title]).split())
         return vacancy
 
 
 class InputConnect:
+    """Класс, отвечающий за сбор статистики по вакансиям. Получает данные от пользователя, передает статистику классу Report
+
+    Attributes:
+        file_name (str): Имя файла
+        profession_name (str): Название профессии
+    """
     def __init__(self):
+        """Инициализирует объект InputConnect"""
         self.file_name = input("Введите название файла: ")
         self.profession_name = input("Введите название профессии: ")
 
     @staticmethod
     def print_data_dict(self, data: DataSet):
+        """Выводит на экран статистику о вакансиях
+
+        Args:
+            data (DataSet): Список вакансий
+        """
         def get_correct_vacancy_rate(data: DataSet):
+            """Отвечает за правильный рассчет количества вакансий по городам в процентом отношении к общему количеству вакансий
+
+            Args:
+                data (DataSet): Список вакансий
+
+            Returns:
+                dict: Отсортированный по убыванию количества вакансий словарь вакансий
+            """
             data.vacancy_rate_by_city = {x: round(y / len(data.vacancies), 4) for x, y in
                                          data.vacancy_rate_by_city.items()}
             data.vacancy_rate_by_city = {k: v for k, v in data.vacancy_rate_by_city.items() if math.floor(v * 100 >= 1)}
@@ -115,6 +195,15 @@ class InputConnect:
 
     @staticmethod
     def get_vacancies_count_by_name(data: DataSet, name):
+        """Считает количество вакансий по годам
+
+        Args:
+            data (DataSet): Список вакансий
+            name (str): Название профессии
+
+        Returns:
+            dict: Словарь с количеством вакансий по годам
+        """
         vacancies_count = {}
         for vacancy in data.vacancies:
             if vacancy.name.__contains__(name) or name == "None":
@@ -125,6 +214,15 @@ class InputConnect:
 
     @staticmethod
     def get_salary_by_name(data: DataSet, name):
+        """Преобразовывает данные о зарплате у каждой вакансии
+
+        Args:
+            data (DataSet): Список вакансий
+            name (str): Название профессии
+
+        Returns:
+            dict: Словарь с преобразованными данными о зарплатах
+        """
         salary_by_name = {}
         for vacancy in data.vacancies:
             if vacancy.name.__contains__(name) or name == "None":
@@ -143,6 +241,14 @@ class InputConnect:
 
     @staticmethod
     def get_vacancy_rate_by_city(data: DataSet):
+        """Приводит статистику вакансий по городам
+
+        Args:
+            data (DataSet): Список вакансий
+
+        Returns:
+            dict: Словарь со статистикой вакансий по городам
+        """
         vacancy_rate = {}
         for vacancy in data.vacancies:
             InputConnect.set_value_by_name(vacancy_rate, vacancy.area_name)
@@ -150,6 +256,12 @@ class InputConnect:
 
     @staticmethod
     def set_value_by_name(vacancy_dict: dict, name):
+        """Вспомогательный метод для подсчета вакансий по городам
+
+        Args:
+            vacancy_dict (dict): Список вакансий
+            name (str): Название города
+        """
         if not vacancy_dict.__contains__(name):
             vacancy_dict[name] = 1
         else:
@@ -157,11 +269,24 @@ class InputConnect:
 
     @staticmethod
     def convert_currency(vacancy):
+        """Конвертирует валюту в рубли для параметра "Валюта оклада" у вакансий
+
+        Args:
+            vacancy (Vacancy): объект класса Vacancy
+        """
         rate = currency_to_rub[vacancy.salary_currency]
         return int((vacancy.salary_from * rate + vacancy.salary_to * rate) / 2)
 
     @staticmethod
     def get_salary_by_city(data: DataSet):
+        """Приводит статистику вакансий по уровню зарплат в городах
+
+        Args:
+            data (DataSet): Список вакансий
+
+        Returns:
+            dict: Отсортированный по убыванию уровня зарплат словарь вакансий
+        """
         salary_by_city = {}
         for vacancy in data.vacancies:
             if math.floor(data.vacancy_rate_by_city[vacancy.area_name] / len(data.vacancies) * 100) >= 1:
@@ -175,7 +300,29 @@ class InputConnect:
 
 
 class Report:
+    """Класс, отвечающий за визуализацию статистики вакансий
+
+    Attributes:
+        salary_by_year (dict): Уровень зарплат всех вакансий по годам
+        vacs_by_years (dict):  Количество всех вакансий по годам
+        vac_salary_by_years (dict): Уровень зарплат конкретной профессии по годам
+        vac_counts_by_years (dict): Количество вакансий конкретной профессии по годам
+        salary_by_cities (dict): Список городов с самыми высокими зарплатами конкретной профессии
+        vacs_by_cities (dict): Список с отношениями количества вакансий по конкретной профессии к общему количеству вакансий по городам
+        profession (str): Название профессии
+    """
     def __init__(self, salary_by_year, vacs_by_years, vac_salary_by_years, vac_counts_by_years, salary_by_cities, vacs_by_cities, profession_name):
+        """Инициализирует объект Report
+
+        Args:
+            salary_by_year (dict): Уровень зарплат всех вакансий по годам
+            vacs_by_years (dict):  Количество всех вакансий по годам
+            vac_salary_by_years (dict): Уровень зарплат конкретной профессии по годам
+            vac_counts_by_years (dict): Количество вакансий конкретной профессии по годам
+            salary_by_cities (dict): Список городов с самыми высокими зарплатами конкретной профессии
+            vacs_by_cities (dict): Список с отношениями количества вакансий по конкретной профессии к общему количеству вакансий по городам
+            profession_name (str): Название профессии
+        """
         self.salary_by_year = salary_by_year
         self.vacs_by_years = vacs_by_years
         self.vac_salary_by_years = vac_salary_by_years
@@ -191,6 +338,17 @@ class Report:
     @staticmethod
     def generate_excel(salary_by_year, vacs_by_years, vac_salary_by_years, vac_counts_by_years, salary_by_cities,
                        vacs_by_cities, profession):
+        """Формирует таблицу Excel с данными о вакансиях по выбраннной профессии
+
+        Args:
+            salary_by_year (dict): Уровень зарплат всех вакансий по годам
+            vacs_by_years (dict):  Количество всех вакансий по годам
+            vac_salary_by_years (dict): Уровень зарплат конкретной профессии по годам
+            vac_counts_by_years (dict): Количество вакансий конкретной профессии по годам
+            salary_by_cities (dict): Список городов с самыми высокими зарплатами конкретной профессии
+            vacs_by_cities (dict): Список с отношениями количества вакансий по конкретной профессии к общему количеству вакансий по городам
+            profession (str): Название профессии
+        """
         wb = Workbook()
         sheet1 = wb.active
         thin = Side(border_style="thin", color="000000")
@@ -222,6 +380,14 @@ class Report:
                 cell.border = Border(left=thin, top=thin, right=thin, bottom=thin)
 
         def as_text(value):
+            """Вспомогательный метод, отвечающий за правильную визуализацию ячеек таблицы и конвертацию их в строку
+
+            Args:
+                value (int or float to str): Значение ячейки таблицы
+
+            Returns:
+                str: Стрковое значение ячейки таблицы
+            """
             if value is None:
                 return ""
             return str(value)
@@ -240,6 +406,17 @@ class Report:
     @staticmethod
     def generate_image(salary_by_year, vacs_by_years, vac_salary_by_years, vac_counts_by_years, salary_by_cities,
                        vacs_by_cities, profession):
+        """Формирует изображение с графиками статистики по вакансиям выбраннной профессии
+
+        Args:
+            salary_by_year (dict): Уровень зарплат всех вакансий по годам
+            vacs_by_years (dict):  Количество всех вакансий по годам
+            vac_salary_by_years (dict): Уровень зарплат конкретной профессии по годам
+            vac_counts_by_years (dict): Количество вакансий конкретной профессии по годам
+            salary_by_cities (dict): Список городов с самыми высокими зарплатами конкретной профессии
+            vacs_by_cities (dict): Список с отношениями количества вакансий по конкретной профессии к общему количеству вакансий по городам
+            profession (str): Название профессии
+        """
         width_coef = 0.4
         other_vacs = 1 - sum([value for value in vacs_by_cities.values()])
         fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
