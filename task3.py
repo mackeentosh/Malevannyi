@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from jinja2 import Environment, FileSystemLoader
 import pdfkit
+import arrow
+import maya
 
 currency_to_rub = {
     "AZN": 35.68,
@@ -104,9 +106,60 @@ class DataSet:
             vacancy_items = [f"{item['name']}", f"{item['salary_from']}", f"{item['salary_to']}",
                              f"{item['salary_currency']}", f"{item['area_name']}", f"{item['published_at']}"]
             vacancy = Vacancy(vacancy_items)
-            vacancy.published_at = datetime.strptime(vacancy.published_at, "%Y-%m-%dT%H:%M:%S%z").year
+            # vacancy.published_at = DataSet.get_year(vacancy.published_at)
+            # vacancy.published_at = DataSet.get_year_with_arrow(vacancy.published_at)
+            # vacancy.published_at = DataSet.get_year_with_maya(vacancy.published_at)
+            vacancy.published_at = DataSet.get_year_optimized(vacancy.published_at)
             dataset.vacancies.append(vacancy)
         return dataset
+
+    # @staticmethod
+    # def get_year(date):
+    #     """Форматирует дату публикации вакансии
+    #
+    #     Args:
+    #         date (str): Дата
+    #
+    #     Returns:
+    #           int: Год публикации вакансии
+    #     """
+    #     return datetime.strptime(date, "%Y-%m-%dT%H:%M:%S%z").year
+    #
+    # @staticmethod
+    # def get_year_with_arrow(date):
+    #     """Форматирует дату публикации вакансии (второй способ, менее быстрый. Использует библиотеку Arrow)
+    #
+    #     Args:
+    #         date (str): Дата
+    #
+    #     Returns:
+    #           int: Год публикации вакансии
+    #     """
+    #     return arrow.get(date).date().year
+
+    # @staticmethod
+    # def get_year_with_maya(date):
+    #     """Форматирует дату публикации вакансии (третий способ, с использованием библиотеки Maya)
+    #
+    #     Args:
+    #         date (str): Дата
+    #
+    #     Returns:
+    #           int: Год публикации вакансии
+    #     """
+    #     return maya.parse(date).datetime().date().year
+
+    @staticmethod
+    def get_year_optimized(date):
+        """Форматирует дату публикации вакансии (четвертый способ - самый быстрый. Берет срез строки)
+
+        Args:
+            date (str): Дата
+
+        Returns:
+              int: Год публикации вакансии
+        """
+        return int(date[0:4])
 
     @staticmethod
     def csv_reader(file_name):
